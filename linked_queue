@@ -1,0 +1,193 @@
+#include <iostream>
+#include <cstdlib>
+
+using namespace std;
+
+struct queueNode
+{
+    type item;
+    queueNode * link;
+};
+
+template <class type>
+class linkedQueue
+{
+public:
+    linkedQueue<type>& operator=(const linkedQueue<type>&);
+    linkedQueue();
+    linkedQueue(const linkedQueue<type>&);
+    ~linkedQueue();
+    bool isEmptyQueue() const;
+    void initializeQueue();
+    void enqueue(const type&);
+    type front() const;
+    type back() const;
+    type dequeue();
+    int queueCount() const;
+    void printQueue() const;
+private:
+    void copyQueue(const linkedQueue<type>&);
+    queueNode * queueFront;
+    queueNode * queueRear;
+    int count;
+};
+
+// Overloaded operator should create a new deep copy of the queue
+template <class type>
+linkedQueue<type>& linkedQueue<type>::operator=(const linkedQueue<type>& r)
+{
+    if(this != &r)
+    {
+        copyQueue(r);
+    }
+}
+
+// Constructor creates the queue, sets counter
+// sets queue to empty state
+template <class type>
+linkedQueue<type>::linkedQueue()
+{
+    count = 0;
+    queueFront = NULL;
+    queueRear = NULL;
+}
+
+// Copy constructor creates a new deep copy of passed queue
+template <class type>
+linkedQueue<type>::linkedQueue(const linkedQueue<type>& otherQueue)
+{
+    copyQueue(otherQueue);
+}
+
+// Destructor deletes the queue
+template <class type>
+linkedQueue<type>::~linkedQueue()
+{
+    queueNode * temp = queueFront;
+
+    while(temp != NULL)
+    {
+        delete temp;
+        queueFront = queueFront->link;
+        temp = queueFront;
+    }
+}
+
+// Create and initialize a new, empty queue.
+template <class type>
+void linkedQueue<type>::initializeQueue()
+{
+    queueFront = new queueNode;
+    queueRear = queueFront;
+    count++;   
+}
+
+// Returns true if queue is not empty, false otherwise
+template <class type>
+bool linkedQueue<type>::isEmptyQueue() const
+{
+    if(queueFront == NULL)
+        return true;
+    else
+        return false;
+}
+
+// Adds passed item to the back of the queue
+template <class type>
+void linkedQueue<type>::enqueue(const type& newItem)
+{
+    count++;
+    queueNode * tmp = new queueNode;
+    (tmp->item) = newItem;
+
+    if(isEmptyQueue())
+    {
+        queueFront = queueRear = tmp;
+        return;
+    }
+
+    queueRear->link = tmp;
+    queueRear = tmp;
+}
+
+// Remove and return front item of the queue
+template <class type>
+type linkedQueue<type>::dequeue()
+{
+    type tmpItem = 0;
+
+    if(isEmptyQueue())
+        return tmpItem;
+    
+    queueNode* tmp = queueFront;
+    tmpItem = tmp->item;
+    queueFront = queueFront->link;
+
+    if(queueFront == NULL)
+        queueRear = NULL;
+
+    count--;
+    delete (tmp);
+    return tmpItem;
+}
+
+// Used by copy contructor and overload operator
+template <class type>
+void linkedQueue<type>::copyQueue(const linkedQueue<type>& o)
+{
+    count = o.count;
+
+    queueNode* tmp = o.queueFront;
+    queueFront = new queueNode;
+    queueRear = queueFront;
+
+    queueFront->item = tmp->item;
+    queueFront->link = NULL;
+    tmp = tmp->link;
+
+    for(int i = 0; i < count-1; i++)
+    {
+        queueFront->link = new queueNode;
+        queueFront = queueFront->link;
+        queueFront->item = tmp->item;
+        queueFront->link = NULL;
+        tmp = tmp->link;
+    }
+    tmp = queueRear;
+    queueRear = queueFront;
+    queueFront = tmp;
+}
+
+// Prints current elements of queue
+template <class type>
+void linkedQueue<type>::printQueue() const
+{
+    queueNode * tmp = queueFront;
+
+    for(int i = 0; i < count; i++)
+    {
+        cout << tmp->item << " ";
+        tmp = tmp->link;
+    }
+}
+
+// returns count of elements in queue
+template <class type>
+int linkedQueue<type>::queueCount() const
+{
+    return count;
+}
+
+// Returns current front of queue
+template <class type>
+type linkedQueue<type>::front() const
+{
+    return queueFront->item;
+}
+
+// Returns back of queue
+template <class type>
+type linkedQueue<type>::back() const
+{
+    return queueRear->item;
+}
