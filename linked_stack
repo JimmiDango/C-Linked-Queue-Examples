@@ -1,0 +1,183 @@
+#include <iostream>
+#include <cstdlib>
+
+using namespace std;
+
+struct stackNode
+{
+    type info;
+    stackNode * link;
+};
+
+template <class type>
+class linkedStack
+{
+public:
+    bool operator==(const linkedStack<type>&);
+    bool operator!=(const linkedStack<type>&);
+    linkedStack();
+    linkedStack(const linkedStack<type>&);
+    ~linkedStack();
+    void deleteStack();
+    bool isStackEmpty() const;
+    void push(const type&);
+    type peek() const;
+    type pop();
+    int stackCount() const;
+    type stackSum() const;
+private:
+    type rSum(stackNode*);
+    void copyStack(const linkedStack<type>);
+    stackNode *stackTop;
+    int count;
+};
+
+// should return true if the current and passed stacks are the same and false otherwise
+template <class type>
+bool linkedStack<type>::operator==(const linkedStack<type>& r)
+{
+    stackNode * i1 = stackTop;
+    stackNode * i2 = r.stackTop;
+
+    if(count != r.count)
+        return false;
+    
+    while(i1 != NULL)
+    {
+        if(i1->item != i2->item)
+            return false;
+        i1 = i1->link;
+        i2 = i2->link;
+    }
+    return true;
+}
+
+// should return false if the current and passed stacks are the same and true otherwise
+template <class type>
+bool linkedStack<type>::operator!=(const linkedStack<type>& r)
+{
+    return(!(*this == r));
+}
+
+// Constructor should initialize stack to an empty state (stackTop = NULL and count=0)
+template <class type>
+linkedStack<type>::linkedStack()
+{
+    stackTop = NULL;
+    count = 0;
+}
+
+// copy constructor should create a new, deep copy of the passed stack
+template <class type>
+linkedStack<type>::linkedStack(const linkedStack<type>& r)
+{
+    stackTop = NULL;
+    count = 0;
+
+    copyStack(r);
+}
+
+// destructor should delete the stack
+template <class type>
+linkedStack<type>::~linkedStack()
+{
+    deleteStack();
+}
+
+// Deletes the stack by popping
+template <class type>
+void linkedStack<type>::deleteStack()
+{
+    while(!isStackEmpty())
+        pop();
+}
+
+// function should determine whether the stack is empty
+// returning true if the stack is empty and false if not.
+template <class type>
+bool linkedStack<type>::isStackEmpty() const
+{
+    return stackTop == NULL;
+}
+
+// function will add the passed item to the top of the stack
+template <class type>
+void linkedStack<type>::push(const type& item)
+{
+    stackNode * insert = new stackNode;
+    insert->item = item;
+    insert->link = stackTop;
+    stackTop = insert;
+    count++;
+}
+
+// function will return the current top of the stack.  
+// If the stack is empty, an error message should be displayed
+template <class type>
+type linkedStack<type>::peek() const
+{
+    if(stackTop != NULL)
+        return stackTop->item;
+    else
+    {
+        cout << "Error peek(), stack is empty." << endl;
+        return type(NULL);
+    }    
+}
+ // function return and remove the top item from the stack
+template <class type>
+type linkedStack<type>::pop()
+{
+    if(!isStackEmpty())
+    {
+        type item = stackTop->item;
+        stackNode * del = stackTop;
+        stackTop = stackTop->link;
+        delete del;
+        count--;
+        return item;
+    }
+    else
+    {
+        return type(NULL);
+    }
+    
+}
+
+// function should return the count of items currently on the stack.
+template <class type>
+int linkedStack<type>::stackCount() const
+{
+    return count;
+}
+
+// function should return the sum of all items currently on the stack
+// uses the recursive rSum() function
+template <class type>
+type linkedStack<type>::stackSum() const
+{
+    return rSum(stackTop);
+}
+
+// Recursively adds up the sum of the stack
+template <class type>
+type linkedStack<type>::rSum(stackNode* nPtr)
+{
+    if(nPtr == NULL)
+        return 0;
+    return nPtr->item + rSum(nPtr->link);
+}
+
+// Deep copies the passed in stack
+template <class type>
+void linkedStack<type>::copyStack(const linkedStack<type> copy)
+{
+    stackNode * i = copy.stackTop;
+    linkedStack<type> reverseStack;
+    
+    while(i != NULL)
+    {
+        reverseStack.push(i->item);
+        i = i->link;
+    }
+}
